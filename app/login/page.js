@@ -16,12 +16,18 @@ export default function Login() {
   const { signIn } = useAuth()
   const router = useRouter()
 
+  const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return input;
+    return input.trim().replace(/[^\x20-\x7E]/g, '');
+  };
+
   const handleInputChange = (e) => {
+    const sanitizedValue = sanitizeInput(e.target.value);
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-    setError('')
+      [e.target.name]: sanitizedValue
+    });
+    setError('');
   }
 
   const handleSubmit = async (e) => {
@@ -31,8 +37,16 @@ export default function Login() {
 
     try {
       const { data, error: signInError } = await signIn(formData.email, formData.password)
-      if (signInError) throw signInError
+      
+      if (signInError) {
+        if (signInError.message.includes('Email not confirmed')) {
+          throw new Error('Please check your email and confirm your account before signing in.');
+        }
+        throw signInError;
+      }
+
       console.log('Login successful:', data)
+      router.push('/dashboard')
     } catch (err) {
       setError(err.message || 'Failed to sign in')
     } finally {
@@ -56,6 +70,7 @@ export default function Login() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {/* User Type Toggle */}
           <div className="flex justify-center mb-6">
             <div className="bg-gray-100 rounded-lg p-1 flex">
               <button
@@ -83,6 +98,7 @@ export default function Login() {
             </div>
           </div>
 
+          {/* Error Message */}
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
@@ -103,7 +119,8 @@ export default function Login() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>
@@ -121,7 +138,8 @@ export default function Login() {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter your password"
                 />
               </div>
             </div>
@@ -140,9 +158,9 @@ export default function Login() {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                   Forgot your password?
-                </a>
+                </Link>
               </div>
             </div>
 
