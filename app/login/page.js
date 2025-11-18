@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function Login() {
   const [isClient, setIsClient] = useState(true)
@@ -12,20 +12,12 @@ export default function Login() {
   })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
-  const { signIn } = useAuth()
   const router = useRouter()
 
-  const sanitizeInput = (input) => {
-    if (typeof input !== 'string') return input;
-    return input.trim().replace(/[^\x20-\x7E]/g, '');
-  };
-
   const handleInputChange = (e) => {
-    const sanitizedValue = sanitizeInput(e.target.value);
     setFormData({
       ...formData,
-      [e.target.name]: sanitizedValue
+      [e.target.name]: e.target.value
     });
     setError('');
   }
@@ -36,8 +28,11 @@ export default function Login() {
     setError('')
 
     try {
-      const { data, error: signInError } = await signIn(formData.email, formData.password)
-      
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      })
+
       if (signInError) {
         if (signInError.message.includes('Email not confirmed')) {
           throw new Error('Please check your email and confirm your account before signing in.');
@@ -45,8 +40,12 @@ export default function Login() {
         throw signInError;
       }
 
-      console.log('Login successful:', data)
-      router.push('/dashboard')
+      // Redirect based on user type
+      if (isClient) {
+        router.push('/dashboard')
+      } else {
+        router.push('/barber-dashboard')
+      }
     } catch (err) {
       setError(err.message || 'Failed to sign in')
     } finally {
@@ -62,8 +61,8 @@ export default function Login() {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-            create a new account
+          <Link href={isClient ? "/register" : "/barber-register"} className="font-medium text-blue-600 hover:text-blue-500">
+            create a new {isClient ? 'client' : 'barber'} account
           </Link>
         </p>
       </div>
@@ -170,7 +169,7 @@ export default function Login() {
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
               >
-                {isLoading ? 'Signing In...' : 'Sign in'}
+                {isLoading ? 'Signing In...' : `Sign in as ${isClient ? 'Client' : 'Barber'}`}
               </button>
             </div>
           </form>
