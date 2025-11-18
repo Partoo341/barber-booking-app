@@ -1,5 +1,5 @@
 ﻿// app/page.js
-import BarberCard from '@/components/BarberCard'
+import BarberCard from '../Components/BarberCard';
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
