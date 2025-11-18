@@ -1,7 +1,7 @@
 ﻿// app/barbers/[id]/page.js
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import SmartBookingForm from '../../Components/SmartBookingForm';
+import SmartBookingForm from '../Components/SmartBookingForm';
 
 async function getBarber(id) {
     const { data: barber, error } = await supabase
