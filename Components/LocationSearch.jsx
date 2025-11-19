@@ -55,12 +55,9 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
         }
     }
 
-    // Kenya major cities and towns
+    // Only 5 major Kenya cities
     const kenyaCities = [
-        'Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika',
-        'Malindi', 'Kitale', 'Garissa', 'Kakamega', 'Nyeri', 'Machakos',
-        'Meru', 'Lamu', 'Isiolo', 'Nanyuki', 'Naivasha', 'Kericho',
-        'Embu', 'Voi', 'Kilifi', 'Narok', 'Kitui', 'Bungoma', 'Busia'
+        'Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret'
     ]
 
     return (
@@ -107,9 +104,9 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                 </button>
             </div>
 
-            {/* Popular Kenya Cities */}
+            {/* Popular Kenya Cities - Now only 5 major ones */}
             <div className="mt-6">
-                <p className="text-sm text-gray-600 mb-3">Popular Cities in Kenya:</p>
+                <p className="text-sm text-gray-600 mb-3">Major Cities in Kenya:</p>
                 <div className="flex flex-wrap gap-2">
                     {kenyaCities.map((city) => (
                         <button
@@ -118,7 +115,7 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                                 console.log('City clicked:', city)
                                 onLocationSelect(city)
                             }}
-                            className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-full transition-colors border border-gray-300 hover:border-gray-400"
+                            className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full transition-colors border border-gray-300 hover:border-gray-400"
                         >
                             {city}
                         </button>
@@ -126,21 +123,7 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                 </div>
             </div>
 
-            {/* Counties Section */}
-            <div className="mt-4">
-                <p className="text-sm text-gray-600 mb-3">Major Counties:</p>
-                <div className="flex flex-wrap gap-2">
-                    {['Nairobi County', 'Mombasa County', 'Kisumu County', 'Nakuru County', 'Uasin Gishu', 'Kilifi County', 'Kakamega County', 'Meru County'].map((county) => (
-                        <button
-                            key={county}
-                            onClick={() => onLocationSelect(county)}
-                            className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full transition-colors border border-blue-200"
-                        >
-                            {county}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            {/* Removed Counties section to keep it clean and focused */}
         </div>
     )
 }
