@@ -7,6 +7,9 @@ export default function FindBarbers() {
     const [selectedLocation, setSelectedLocation] = useState('')
     const [barbers, setBarbers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [showPhoneModal, setShowPhoneModal] = useState(false)
+    const [selectedBarber, setSelectedBarber] = useState(null)
+    const [showBookingModal, setShowBookingModal] = useState(false)
 
     const handleLocationSelect = async (location) => {
         console.log('Location selected:', location)
@@ -14,18 +17,12 @@ export default function FindBarbers() {
         setIsLoading(true)
         
         try {
-            // Search for barbers in the selected location - more flexible search
             const { data, error } = await supabase
                 .from('barbers')
                 .select('*')
                 .or(`city.ilike.%${location}%,state.ilike.%${location}%,shop_address.ilike.%${location}%,name.ilike.%${location}%,specialization.ilike.%${location}%`)
             
-            if (error) {
-                console.error('Supabase error:', error)
-                throw error
-            }
-            
-            console.log('Found barbers:', data)
+            if (error) throw error
             setBarbers(data || [])
         } catch (error) {
             console.error('Error searching barbers:', error)
@@ -36,11 +33,22 @@ export default function FindBarbers() {
     }
 
     const handleUseMyLocation = (location) => {
-        console.log('Using location:', location)
         handleLocationSelect(location)
     }
 
-    // Function to format barber address
+    // Handle Get Number button
+    const handleGetNumber = (barber) => {
+        setSelectedBarber(barber)
+        setShowPhoneModal(true)
+    }
+
+    // Handle Book Appointment button
+    const handleBookAppointment = (barber) => {
+        setSelectedBarber(barber)
+        setShowBookingModal(true)
+    }
+
+    // Format barber address
     const formatBarberAddress = (barber) => {
         const parts = []
         if (barber.shop_address) parts.push(barber.shop_address)
@@ -105,10 +113,16 @@ export default function FindBarbers() {
                                     )}
                                     
                                     <div className="mt-4 flex space-x-2">
-                                        <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded hover:bg-blue-700 text-sm">
+                                        <button 
+                                            onClick={() => handleGetNumber(barber)}
+                                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded hover:bg-blue-700 text-sm transition-colors"
+                                        >
                                             Get Number
                                         </button>
-                                        <button className="flex-1 bg-green-600 text-white py-2 px-3 rounded hover:bg-green-700 text-sm">
+                                        <button 
+                                            onClick={() => handleBookAppointment(barber)}
+                                            className="flex-1 bg-green-600 text-white py-2 px-3 rounded hover:bg-green-700 text-sm transition-colors"
+                                        >
                                             Book Appointment
                                         </button>
                                     </div>
@@ -131,6 +145,145 @@ export default function FindBarbers() {
                         </div>
                     )}
                 </div>
+
+                {/* Phone Number Modal */}
+                {showPhoneModal && selectedBarber && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                            <h3 className="text-xl font-semibold mb-4">{selectedBarber.name}'s Contact</h3>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-lg font-mono bg-gray-100 px-3 py-2 rounded">
+                                            {selectedBarber.phone || 'Not available'}
+                                        </span>
+                                        {selectedBarber.phone && (
+                                            <a 
+                                                href={`tel:${selectedBarber.phone}`}
+                                                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                            >
+                                                Call
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <p className="text-gray-600">{selectedBarber.email}</p>
+                                </div>
+
+                                {selectedBarber.shop_address && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                        <p className="text-gray-600">{formatBarberAddress(selectedBarber)}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mt-6 flex space-x-3">
+                                <button
+                                    onClick={() => setShowPhoneModal(false)}
+                                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition-colors"
+                                >
+                                    Close
+                                </button>
+                                {selectedBarber.phone && (
+                                    <a 
+                                        href={`https://wa.me/${selectedBarber.phone.replace('+', '').replace(/\s/g, '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors text-center"
+                                    >
+                                        WhatsApp
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Booking Modal */}
+                {showBookingModal && selectedBarber && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                            <h3 className="text-xl font-semibold mb-4">Book with {selectedBarber.name}</h3>
+                            
+                            <form className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter your full name"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Phone</label>
+                                    <input
+                                        type="tel"
+                                        placeholder="Enter your phone number"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Date</label>
+                                    <input
+                                        type="date"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Time</label>
+                                    <select className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select a time</option>
+                                        <option value="09:00">9:00 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="13:00">1:00 PM</option>
+                                        <option value="14:00">2:00 PM</option>
+                                        <option value="15:00">3:00 PM</option>
+                                        <option value="16:00">4:00 PM</option>
+                                        <option value="17:00">5:00 PM</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Service Required</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., Haircut, Beard trim, etc."
+                                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </form>
+
+                            <div className="mt-6 flex space-x-3">
+                                <button
+                                    onClick={() => setShowBookingModal(false)}
+                                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        alert('Booking request sent! The barber will contact you to confirm.');
+                                        setShowBookingModal(false);
+                                    }}
+                                    className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors"
+                                >
+                                    Request Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
