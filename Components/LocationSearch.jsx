@@ -8,7 +8,8 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
     const handleSubmit = (e) => {
         e.preventDefault()
         if (searchQuery.trim()) {
-            onLocationSelect(searchQuery)
+            console.log('Search submitted:', searchQuery)
+            onLocationSelect(searchQuery.trim())
         }
     }
 
@@ -16,10 +17,11 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
         setIsLocating(true)
         try {
             if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser')
+                alert('Geolocation haitumiki kwenye kivinjari chako')
                 return
             }
 
+            console.log('Requesting location...')
             const position = await new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject, {
                     timeout: 10000,
@@ -28,20 +30,25 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
             })
 
             const { latitude, longitude } = position.coords
+            console.log('Got coordinates:', latitude, longitude)
             
             // Reverse geocode to get location name
             const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
             const data = await response.json()
+            console.log('Geocoding result:', data)
             
-            const locationName = data.city || data.locality || data.principalSubdivision || 'Your Location'
+            const locationName = data.city || data.locality || data.principalSubdivision || 'Eneo Lako'
+            console.log('Location name:', locationName)
             onLocationSelect(locationName)
             
         } catch (error) {
             console.error('Error getting location:', error)
             if (error.code === error.PERMISSION_DENIED) {
-                alert('Location access denied. Please enable location permissions or search manually.')
+                alert('Huruhusiwi kutumia eneo lako. Tafadhali weka ruhusa au tafuta mwenyewe.')
+            } else if (error.code === error.TIMEOUT) {
+                alert('Imechukua muda mrefu kupata eneo lako. Tafadhali jaribu tena au tafuta mwenyewe.')
             } else {
-                alert('Unable to get your location. Please search manually.')
+                alert('Imeshindikana kupata eneo lako. Tafadhali tafuta mwenyewe.')
             }
         } finally {
             setIsLocating(false)
@@ -58,8 +65,8 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Pata Kinyozi Karibu Nawe</h2>
-            <p className="text-gray-600 mb-4">Find barbershops near your location in Kenya</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Pata Kinyozi Karibu Nawe</h2>
+            <p className="text-gray-600 mb-4">Tafuta kinyozi karibu na eneo lako popote Kenya</p>
 
             <div className="flex flex-col sm:flex-row gap-4">
                 {/* Search Input */}
@@ -76,7 +83,7 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                             type="submit"
                             className="bg-blue-600 text-white px-6 py-3 rounded-r-lg hover:bg-blue-700 transition-colors font-medium"
                         >
-            Tafuta
+                            Tafuta
                         </button>
                     </form>
                 </div>
@@ -85,9 +92,18 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                 <button
                     onClick={handleUseMyLocation}
                     disabled={isLocating}
-                    className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium whitespace-nowrap disabled:bg-green-400 disabled:cursor-not-allowed"
+                    className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium whitespace-nowrap disabled:bg-green-400 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                    {isLocating ? '📡 Inatafuta...' : '📍 Tumia Eneo Langu'}
+                    {isLocating ? (
+                        <>
+                            <span className="animate-spin mr-2">⟳</span>
+                            Inatafuta...
+                        </>
+                    ) : (
+                        <>
+                            📍 Tumia Eneo Langu
+                        </>
+                    )}
                 </button>
             </div>
 
@@ -98,26 +114,13 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                     {kenyaCities.map((city) => (
                         <button
                             key={city}
-                            onClick={() => onLocationSelect(city)}
+                            onClick={() => {
+                                console.log('City clicked:', city)
+                                onLocationSelect(city)
+                            }}
                             className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-full transition-colors border border-gray-300 hover:border-gray-400"
                         >
                             {city}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Counties Section */}
-            <div className="mt-4">
-                <p className="text-sm text-gray-600 mb-3">Kaunti kubwa:</p>
-                <div className="flex flex-wrap gap-2">
-                    {['Nairobi County', 'Mombasa County', 'Kisumu County', 'Nakuru County', 'Uasin Gishu', 'Kilifi County', 'Kakamega County', 'Meru County'].map((county) => (
-                        <button
-                            key={county}
-                            onClick={() => onLocationSelect(county)}
-                            className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full transition-colors border border-blue-200"
-                        >
-                            {county}
                         </button>
                     ))}
                 </div>
