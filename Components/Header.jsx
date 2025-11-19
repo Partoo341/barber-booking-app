@@ -1,4 +1,3 @@
-﻿// components/Header.jsx
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -30,8 +29,13 @@ export default function Header() {
                             <Link href="/" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                                 Home
                             </Link>
-                            <Link href="/barbers" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                            {/* CHANGED: This now points to the new location search page */}
+                            <Link href="/find-barbers" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                                 Find Barbers
+                            </Link>
+                            {/* Keep the original barbers page as "All Barbers" */}
+                            <Link href="/barbers" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                                All Barbers
                             </Link>
                             {user && (
                                 <Link href="/dashboard" className="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
@@ -86,14 +90,35 @@ export default function Header() {
                 {isMenuOpen && (
                     <div className="md:hidden">
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-                            <Link href="/" className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">
+                            <Link 
+                                href="/" 
+                                className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
                                 Home
                             </Link>
-                            <Link href="/barbers" className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">
+                            {/* CHANGED: Mobile menu also points to new location search */}
+                            <Link 
+                                href="/find-barbers" 
+                                className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
                                 Find Barbers
                             </Link>
+                            {/* Keep the original barbers page in mobile menu too */}
+                            <Link 
+                                href="/barbers" 
+                                className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                All Barbers
+                            </Link>
                             {user && (
-                                <Link href="/dashboard" className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">
+                                <Link 
+                                    href="/dashboard" 
+                                    className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
                                     Dashboard
                                 </Link>
                             )}
@@ -113,10 +138,18 @@ export default function Header() {
                                     </div>
                                 ) : (
                                     <>
-                                        <Link href="/login" className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">
+                                        <Link 
+                                            href="/login" 
+                                            className="text-gray-900 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
                                             Login
                                         </Link>
-                                        <Link href="/register" className="bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium mt-2">
+                                        <Link 
+                                            href="/register" 
+                                            className="bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium mt-2"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
                                             Get Started
                                         </Link>
                                     </>
