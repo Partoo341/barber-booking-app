@@ -17,7 +17,7 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
         setIsLocating(true)
         try {
             if (!navigator.geolocation) {
-                alert('Geolocation haitumiki kwenye kivinjari chako')
+                alert('Geolocation is not supported by your browser')
                 return
             }
 
@@ -37,18 +37,18 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
             const data = await response.json()
             console.log('Geocoding result:', data)
             
-            const locationName = data.city || data.locality || data.principalSubdivision || 'Eneo Lako'
+            const locationName = data.city || data.locality || data.principalSubdivision || 'Your Location'
             console.log('Location name:', locationName)
             onLocationSelect(locationName)
             
         } catch (error) {
             console.error('Error getting location:', error)
             if (error.code === error.PERMISSION_DENIED) {
-                alert('Huruhusiwi kutumia eneo lako. Tafadhali weka ruhusa au tafuta mwenyewe.')
+                alert('Location access denied. Please enable location permissions or search manually.')
             } else if (error.code === error.TIMEOUT) {
-                alert('Imechukua muda mrefu kupata eneo lako. Tafadhali jaribu tena au tafuta mwenyewe.')
+                alert('Location request timed out. Please try again or search manually.')
             } else {
-                alert('Imeshindikana kupata eneo lako. Tafadhali tafuta mwenyewe.')
+                alert('Unable to get your location. Please search manually.')
             }
         } finally {
             setIsLocating(false)
@@ -65,8 +65,8 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Pata Kinyozi Karibu Nawe</h2>
-            <p className="text-gray-600 mb-4">Tafuta kinyozi karibu na eneo lako popote Kenya</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Find Barbers Near You</h2>
+            <p className="text-gray-600 mb-4">Search for barbershops near your location in Kenya</p>
 
             <div className="flex flex-col sm:flex-row gap-4">
                 {/* Search Input */}
@@ -76,14 +76,14 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Andika jina la mji, eneo au anwani..."
+                            placeholder="Enter city name, area, or address..."
                             className="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         <button
                             type="submit"
                             className="bg-blue-600 text-white px-6 py-3 rounded-r-lg hover:bg-blue-700 transition-colors font-medium"
                         >
-                            Tafuta
+                            Search
                         </button>
                     </form>
                 </div>
@@ -97,11 +97,11 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                     {isLocating ? (
                         <>
                             <span className="animate-spin mr-2">⟳</span>
-                            Inatafuta...
+                            Locating...
                         </>
                     ) : (
                         <>
-                            📍 Tumia Eneo Langu
+                            📍 Use My Location
                         </>
                     )}
                 </button>
@@ -109,7 +109,7 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
 
             {/* Popular Kenya Cities */}
             <div className="mt-6">
-                <p className="text-sm text-gray-600 mb-3">Miji maarufu Kenya:</p>
+                <p className="text-sm text-gray-600 mb-3">Popular Cities in Kenya:</p>
                 <div className="flex flex-wrap gap-2">
                     {kenyaCities.map((city) => (
                         <button
@@ -121,6 +121,22 @@ export default function LocationSearch({ onLocationSelect, onUseMyLocation }) {
                             className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-full transition-colors border border-gray-300 hover:border-gray-400"
                         >
                             {city}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Counties Section */}
+            <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-3">Major Counties:</p>
+                <div className="flex flex-wrap gap-2">
+                    {['Nairobi County', 'Mombasa County', 'Kisumu County', 'Nakuru County', 'Uasin Gishu', 'Kilifi County', 'Kakamega County', 'Meru County'].map((county) => (
+                        <button
+                            key={county}
+                            onClick={() => onLocationSelect(county)}
+                            className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full transition-colors border border-blue-200"
+                        >
+                            {county}
                         </button>
                     ))}
                 </div>

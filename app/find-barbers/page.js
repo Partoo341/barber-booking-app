@@ -46,7 +46,7 @@ export default function FindBarbers() {
         if (barber.shop_address) parts.push(barber.shop_address)
         if (barber.city) parts.push(barber.city)
         if (barber.state) parts.push(barber.state)
-        return parts.join(', ') || 'Mahali haijajazwa'
+        return parts.join(', ') || 'Location not specified'
     }
 
     return (
@@ -63,10 +63,10 @@ export default function FindBarbers() {
                     {selectedLocation && (
                         <div className="mb-6">
                             <h3 className="text-lg font-semibold text-gray-900">
-                                Inaonyesha kinyozi karibu na: <span className="text-blue-600">{selectedLocation}</span>
+                                Showing barbers near: <span className="text-blue-600">{selectedLocation}</span>
                             </h3>
                             <p className="text-sm text-gray-600 mt-1">
-                                {barbers.length} kinyozi wamepatikana
+                                Found {barbers.length} barbers
                             </p>
                         </div>
                     )}
@@ -74,7 +74,7 @@ export default function FindBarbers() {
                     {isLoading ? (
                         <div className="text-center py-8">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Inatafuta kinyozi...</p>
+                            <p className="mt-4 text-gray-600">Searching for barbers...</p>
                         </div>
                     ) : barbers.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -84,32 +84,32 @@ export default function FindBarbers() {
                                     
                                     {barber.specialization && (
                                         <p className="text-gray-700 mb-1">
-                                            <span className="font-medium">Aina:</span> {barber.specialization}
+                                            <span className="font-medium">Specialty:</span> {barber.specialization}
                                         </p>
                                     )}
                                     
                                     {barber.experience_years && (
                                         <p className="text-gray-700 mb-1">
-                                            <span className="font-medium">Uzoefu:</span> {barber.experience_years} miaka
+                                            <span className="font-medium">Experience:</span> {barber.experience_years} years
                                         </p>
                                     )}
                                     
                                     <p className="text-sm text-gray-600 mb-2">
-                                        <span className="font-medium">Mahali:</span> {formatBarberAddress(barber)}
+                                        <span className="font-medium">Location:</span> {formatBarberAddress(barber)}
                                     </p>
                                     
                                     {barber.hourly_rate && (
                                         <p className="text-gray-700 mb-3">
-                                            <span className="font-medium">Bei:</span> KSH {barber.hourly_rate}/saa
+                                            <span className="font-medium">Rate:</span> KSH {barber.hourly_rate}/hour
                                         </p>
                                     )}
                                     
                                     <div className="mt-4 flex space-x-2">
                                         <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded hover:bg-blue-700 text-sm">
-                                            Pata Namba
+                                            Get Number
                                         </button>
                                         <button className="flex-1 bg-green-600 text-white py-2 px-3 rounded hover:bg-green-700 text-sm">
-                                            Tumia Muda
+                                            Book Appointment
                                         </button>
                                     </div>
                                 </div>
@@ -118,15 +118,15 @@ export default function FindBarbers() {
                     ) : selectedLocation ? (
                         <div className="text-center py-8">
                             <div className="text-yellow-600 bg-yellow-50 p-4 rounded-lg">
-                                <p className="font-medium">Hakuna kinyozi walipatikana karibu na <span className="font-semibold">{selectedLocation}</span>.</p>
-                                <p className="text-sm mt-2">Jaribu kutafuta kwa jina lingine la mji au eneo.</p>
+                                <p className="font-medium">No barbers found near <span className="font-semibold">{selectedLocation}</span>.</p>
+                                <p className="text-sm mt-2">Try searching with a different city or area name.</p>
                             </div>
                         </div>
                     ) : (
                         <div className="text-center py-8">
                             <div className="bg-blue-50 p-6 rounded-lg">
-                                <p className="text-gray-700">Chagua eneo lako ili kuona kinyozi walio karibu nawe.</p>
-                                <p className="text-sm text-gray-600 mt-2">Unaweza kutumia eneo lako kiotomatiki au kutafuta mji wako.</p>
+                                <p className="text-gray-700">Select your location to see barbers near you.</p>
+                                <p className="text-sm text-gray-600 mt-2">You can use your current location or search for a city.</p>
                             </div>
                         </div>
                     )}
